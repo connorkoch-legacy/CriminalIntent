@@ -33,7 +33,7 @@ class CrimeListFragment : Fragment() {
             view.list_item_crime_solved_check_box.text = crime.isSolved.toString()
 
             view.setOnClickListener {
-                val intent = CrimeDetailsActivity.createIntent(fragment, crime.id, position)
+                val intent = CrimePagerActivity.createIntent(fragment.activity, position)
                 fragment.startActivityForResult(intent, REQUEST_CODE_DETAILS_FRAGMENT)
             }
         }
@@ -57,10 +57,11 @@ class CrimeListFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?){
-
-        //super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == RESULT_OK && requestCode == REQUEST_CODE_DETAILS_FRAGMENT && data != null){
-            adapter.notifyItemChanged(data.getIntExtra("POSITION", -1))
+        if(resultCode != RESULT_OK) { return }
+        if(data == null) { return }
+        if(requestCode == REQUEST_CODE_DETAILS_FRAGMENT) {
+            val position = CrimeDetailsFragment.getExtra()
+            adapter.notifyItemChanged(position)
         }
     }
 
@@ -92,6 +93,7 @@ class CrimeListFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Log.d(LOG_TAG, "onResume() called")
+        updateUI()
     }
 
     override fun onPause() {
@@ -124,6 +126,5 @@ class CrimeListFragment : Fragment() {
         Log.d(LOG_TAG, "onViewCreated() called")
         super.onViewCreated(view, savedInstanceState)
         crime_list_recycler_view.layoutManager = LinearLayoutManager( activity )
-        updateUI()
     }
 }

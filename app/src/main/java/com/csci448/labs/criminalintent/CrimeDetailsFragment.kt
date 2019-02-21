@@ -28,8 +28,9 @@ class CrimeDetailsFragment : Fragment() {
         fun createFragment(uuid: UUID, pos: Int): Fragment{
             val arguments = Bundle()
             arguments.putSerializable("UUID", uuid)
-            arguments.putInt("UUID", pos)
+            arguments.putInt("POSITION", pos)
             val fragment = CrimeDetailsFragment()
+            position = pos
             fragment.arguments = arguments
             return fragment
         }
