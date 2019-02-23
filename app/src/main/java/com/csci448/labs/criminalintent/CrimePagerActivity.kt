@@ -10,7 +10,9 @@ import android.util.Log
 import kotlinx.android.synthetic.main.activity_crime_pager.*
 
 
-class CrimePagerActivity : AppCompatActivity() {
+class CrimePagerActivity : AppCompatActivity(), CrimeDetailsFragment.Callbacks {
+
+    override fun onCrimeUpdated() {}
 
     companion object {
         private const val LOG_TAG = "448.CrimePagerActivity"

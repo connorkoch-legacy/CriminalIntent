@@ -20,6 +20,11 @@ import java.util.*
 // TODO create the fragment
 class CrimeDetailsFragment : Fragment() {
 
+    interface Callbacks {
+        fun onCrimeUpdated()
+    }
+
+    private var callbacks: Callbacks? = null
 
     companion object{
         val LOG_TAG = "448.CrimeDetailsFrag"
@@ -27,7 +32,7 @@ class CrimeDetailsFragment : Fragment() {
 
         fun createFragment(uuid: UUID, pos: Int): Fragment{
             val arguments = Bundle()
-            arguments.putSerializable("UUID", uuid)
+            arguments.putString("UUID", uuid.toString())
             arguments.putInt("POSITION", pos)
             val fragment = CrimeDetailsFragment()
             position = pos
@@ -66,6 +71,7 @@ class CrimeDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.d(LOG_TAG, "onViewCreated() called")
 
+        crime_title_edit_text.setText(crime.title)
 
         crime_title_edit_text.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start:Int, count: Int, after: Int) {
@@ -73,6 +79,7 @@ class CrimeDetailsFragment : Fragment() {
             }
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 crime.title = s.toString()
+                callbacks?.onCrimeUpdated()
                 setResult()
             }
             override fun afterTextChanged(s: Editable) {
@@ -84,8 +91,21 @@ class CrimeDetailsFragment : Fragment() {
         crime_date_button.isEnabled = false
         crime_solved_checkbox.setOnCheckedChangeListener {
                 _, isChecked -> crime.isSolved = isChecked
+            callbacks?.onCrimeUpdated()
             setResult()
         }
+    }
+
+    override fun onAttach(context: Context?) {
+        super.onAttach(context)
+        Log.d(LOG_TAG, "onAttach() called")
+        callbacks = context as Callbacks
+    }
+
+    override fun onDetach() {
+        Log.d(LOG_TAG, "onDetach() called")
+        callbacks = null
+        super.onDetach()
     }
 
     override fun onDestroyView() {

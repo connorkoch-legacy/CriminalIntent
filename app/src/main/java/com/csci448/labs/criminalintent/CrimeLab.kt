@@ -3,16 +3,8 @@ package com.csci448.labs.criminalintent
 import java.util.UUID
 
 object CrimeLab {
-    private val crimes : MutableList<Crime> = mutableListOf()
 
-    init {
-        for(i in 0..100) {
-            val crime = Crime()
-            crime.title = "Crime #$i"
-            crime.isSolved = (i % 2 == 0)
-            crimes.add(crime)
-        }
-    }
+    private val crimes : MutableList<Crime> = mutableListOf()
 
     fun getCrime(id: UUID): Crime? {
         for(crime in crimes) {
@@ -24,5 +16,11 @@ object CrimeLab {
     }
 
     fun getCrimes() = crimes
+
+    fun getNumberOfCrimes() = crimes.size
+
+    fun addCrime(c: Crime) {
+        crimes.add(c)
+    }
 
 }

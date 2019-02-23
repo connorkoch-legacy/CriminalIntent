@@ -10,13 +10,16 @@ import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import kotlinx.android.synthetic.main.fragment_list.*
 import kotlinx.android.synthetic.main.list_item_crime.view.*
 
 class CrimeListFragment : Fragment() {
+
+    // define the Callback interface
+    interface Callbacks {
+        fun onCrimeSelected(crime: Crime, position: Int)
+    }
 
     companion object {
         private const val LOG_TAG = "448.CrimeListFrag"
@@ -24,6 +27,9 @@ class CrimeListFragment : Fragment() {
     }
 
     private lateinit var adapter: CrimeListAdapter
+
+    // define the callback object
+    private var callbacks: Callbacks? = null
 
     private class CrimeHolder(val fragment: CrimeListFragment, val view: View) : RecyclerView.ViewHolder(view) {
 
@@ -33,8 +39,7 @@ class CrimeListFragment : Fragment() {
             view.list_item_crime_solved_check_box.text = crime.isSolved.toString()
 
             view.setOnClickListener {
-                val intent = CrimePagerActivity.createIntent(fragment.activity, position)
-                fragment.startActivityForResult(intent, REQUEST_CODE_DETAILS_FRAGMENT)
+                fragment.callbacks?.onCrimeSelected(crime, position)
             }
         }
     }
@@ -65,19 +70,48 @@ class CrimeListFragment : Fragment() {
         }
     }
 
-    fun updateUI() {
-        adapter = CrimeListAdapter(this, CrimeLab.getCrimes())
-        crime_list_recycler_view.adapter = adapter
+     fun updateUI() {
+        if( ::adapter.isInitialized ) {
+            adapter.notifyDataSetChanged()
+        } else {
+            adapter = CrimeListAdapter(this, CrimeLab.getCrimes())
+            crime_list_recycler_view.adapter = adapter
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean =
+        when(item?.itemId) {
+            R.id.new_crime_menu_item -> {
+                val crime = Crime()
+                CrimeLab.addCrime(crime)
+                updateUI()
+                callbacks?.onCrimeSelected(crime, CrimeLab.getNumberOfCrimes()-1)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater?.inflate(R.menu.fragment_crime_list, menu)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         Log.d(LOG_TAG, "onCreate() called")
     }
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         Log.d(LOG_TAG, "onAttach() called")
+        callbacks = context as Callbacks
+    }
+
+    override fun onDetach() {
+        Log.d(LOG_TAG, "onDetach() called")
+        callbacks = null
+        super.onDetach()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -109,11 +143,6 @@ class CrimeListFragment : Fragment() {
     override fun onDestroy() {
         Log.d(LOG_TAG, "onDestroy() called")
         super.onDestroy()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        Log.d(LOG_TAG, "onDetach() called")
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

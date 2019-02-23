@@ -1,6 +1,7 @@
 package com.csci448.labs.criminalintent
 
 import android.os.Bundle
+import android.support.annotation.LayoutRes
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -14,7 +15,7 @@ abstract class SingleFragmentActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(getLogTag(), "onCreate() called")
-        setContentView(R.layout.activity_single_fragment)
+        setContentView(getLayoutResId())
 
         // TODO create fragment transaction
         var fragment: Fragment? = supportFragmentManager.findFragmentById(R.id.fragment_container)
@@ -24,6 +25,9 @@ abstract class SingleFragmentActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction().add(R.id.fragment_container, fragment).commit()
         }
     }
+
+    @LayoutRes
+    protected open fun getLayoutResId() = R.layout.activity_single_fragment
 
     override fun onStart() {
         super.onStart()
